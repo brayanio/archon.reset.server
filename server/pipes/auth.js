@@ -7,6 +7,7 @@ const create = async (email, password) => {
     let res = await db.get(key)
     if(res) return {error: 'Email already in use'}
     const account = new Account(email, password)
+    await account.log(email, password)
     res = await db.set(key, account.save())
     return account.exportable()
 }

@@ -1,24 +1,39 @@
-const Archon = require("./archon.js")
-const Database = require("@replit/database")
-const db = new Database()
-const guid = require('../utils/guid.js')
-
 module.exports = class{
 
     constructor(email, password){
         this.email = email
         this.password = password
-        this.archon = []
-        this.log(email, password)
-        this.exp = 0
+        this.data = {}
     }
 
-    log(email, password){
+    checkSessionTime = () => {
+        const date = new Date(this.sessionTime)
+        const compare = new Date()
+        compare.setDate(date.getDate() + 7);
+        if(new Date() > compare){
+            this.sessionId = guid()
+            this.sessionTime = new Date().toDateString()
+            db.set(`user-${this.email}`, this.save())
+        }
+    }
+
+    async log(email, password){
+        const guid = require('../utils/guid.js')
+        const Database = require("@replit/database")
+        const db = new Database()
         if(email != this.email) return {error: 'Credentials do not match'}
         if(password != this.password) return {error: 'Credentials do not match'}
-        this.sessionId = guid()
-        this.sessionTime = new Date()
-        db.set(`user-${email}`, this.save())
+        const account = await db.get(`user-${email}`)
+        if(account){
+            this.email = email
+            this.sessionTime = account.sessionTime
+            this.checkSessionTime(email, account)
+        }
+        else {
+            this.sessionId = guid()
+            this.sessionTime = new Date().toDateString()
+            db.set(`user-${email}`, this.save())
+        }
         return this.exportable()
     }
 
@@ -31,9 +46,7 @@ module.exports = class{
     exportable(){
         return {
             email: this.email,
-            sessionId: this.sessionId,
-            archon: this.archon.map(a => a.exportable()),
-            exp: this.exp
+            sessionId: this.sessionId
         }
     }
 
@@ -43,8 +56,7 @@ module.exports = class{
             password: this.password,
             sessionId: this.sessionId,
             sessionTime: this.sessionTime,
-            archon: this.archon.map(a => a.save()),
-            exp: this.exp
+            data: JSON.stringify(this.data)
         }
     }
 
@@ -52,13 +64,15 @@ module.exports = class{
         this.email = obj.email
         this.password = obj.password
         this.sessionId = obj.sessionId
-        this.sessionTime = obj.sessionTime
-        this.archon = obj.archon.map(d => (new Archon().load(d)))
-        this.exp = obj.exp
+        this.sessionTime = new Date(obj.sessionTime)
+        if(obj.data) this.data = JSON.parse(obj.data)
+        this.checkSessionTime(this.email, this)
         return this
     }
 
-    savetodb(){
-        db.set(`user-${this.email}`, this.save())
+    async savetodb(){
+        const Database = require("@replit/database")
+        const db = new Database()
+        await db.set(`user-${this.email}`, this.save())
     }
 }

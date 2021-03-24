@@ -1,9 +1,9 @@
 const Database = require("@replit/database")
 const db = new Database()
 
-db.list().then(val => console.log(val))
+// db.list().then(val => console.log(val))
 
-db.delete('user-brayanbyrdsong@icloud.com')
+// db.delete('user-brayanbyrdsong@icloud.com')
 
 /* SERVER */
 const server = require('./server/utils/server.js')

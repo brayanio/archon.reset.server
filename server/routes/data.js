@@ -1,7 +1,7 @@
 const server = require('../utils/server.js')
 const dataPipe = require('../pipes/data.js')
 
-module.exports = server.post('data', body => {
+module.exports = server.post('data', async body => {
   const email = body.email.toLowerCase()
   const sessionId = body.sessionId
   const load = body.load
@@ -10,10 +10,10 @@ module.exports = server.post('data', body => {
 
   if(load){
       console.log('load', email)
-      return dataPipe.load(email, sessionId)
+      return await dataPipe.load(email, sessionId)
   }
   if(key && data){
       console.log('save', key, email)
-      return dataPipe.save(email, sessionId, key, data)
+      return await dataPipe.save(email, sessionId, key, data)
   }
 })

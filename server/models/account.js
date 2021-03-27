@@ -1,9 +1,18 @@
+const verifyCode = require('../utils/verifyCode.js')
+
 module.exports = class{
 
-    constructor(email, password){
+    constructor(email, password, firstname, lastname, nickname){
+        this.firstname = firstname
+        this.lastname = lastname
+        this.nickname = nickname
         this.email = email
         this.password = password
         this.data = {}
+        this.verified = false
+        this.freeTrial = false
+        this.subTime = 0
+        this.verificationCode = verifyCode()
     }
 
     checkSessionTime = () => {
@@ -44,20 +53,33 @@ module.exports = class{
     }
 
     exportable(){
-        return {
+        let obj = {
             email: this.email,
-            sessionId: this.sessionId
+            sessionId: this.sessionId,
+            nickname: this.nickname,
+            subTime: this.subTime,
+            verified: this.verified,
+            freeTrial: this.freeTrial,
         }
+        return obj
     }
 
     save(){
-        return {
+        let obj = {
             email: this.email,
             password: this.password,
             sessionId: this.sessionId,
             sessionTime: this.sessionTime,
-            data: JSON.stringify(this.data)
+            data: JSON.stringify(this.data),
+            firstname: this.firstname,
+            lastname: this.lastname,
+            nickname: this.nickname,
+            subTime: this.subTime,
+            verified: this.verified,
+            freeTrial: this.freeTrial,
         }
+        if(!this.verified) obj.verificationCode = this.verificationCode
+        return obj
     }
 
     load(obj){
@@ -65,6 +87,13 @@ module.exports = class{
         this.password = obj.password
         this.sessionId = obj.sessionId
         this.sessionTime = new Date(obj.sessionTime)
+        this.firstname = obj.firstname
+        this.lastname = obj.lastname
+        this.nickname = obj.nickname
+        this.subTime = obj.subTime
+        this.verified = obj.verified
+        this.freeTrial = obj.freeTrial
+        if(obj.verificationCode && !this.verified) this.verificationCode = obj.verificationCode
         if(obj.data) this.data = JSON.parse(obj.data)
         this.checkSessionTime(this.email, this)
         return this

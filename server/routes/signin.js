@@ -10,15 +10,18 @@ module.exports = server.post('signin', body => {
   const sessionId = body.sessionId
 
   if(signup) {
-      console.log('signup', email)
-      return auth.create(email, password)
+    const firstname = body.firstname
+    const lastname = body.lastname
+    const nickname = body.nickname
+    console.log('signup', email)
+    return auth.create(email, password, firstname, lastname, nickname)
   }
   if(signin) {
-      console.log('signin', email)
-      return auth.log(email, password)
+    console.log('signin', email)
+    return auth.log(email, password)
   }
   if(sessionId){
-      console.log('sessionId', email)
-      return auth.validate(email, sessionId)
+    console.log('sessionId', email)
+    return auth.validate(email, sessionId)
   }
 })

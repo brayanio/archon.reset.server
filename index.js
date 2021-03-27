@@ -8,5 +8,8 @@ const db = new Database()
 /* SERVER */
 const server = require('./server/utils/server.js')
 require('./server/routes/data.js')
+require('./server/routes/feedback.js')
+require('./server/routes/freetrial.js')
 require('./server/routes/signin.js')
+require('./server/routes/verify.js')
 server.serve(4200)

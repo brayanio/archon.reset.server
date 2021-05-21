@@ -12,7 +12,7 @@ const create = async (email, password, firstname, lastname, nickname) => {
     res = await mail.sendMail(email, 
         'Verify your email address',
         `
-            <h1>Thank you for signing up for Essencials, ${nickname}!</h1>
+            <h1>Thank you for signing up for Essencials, ${account.nickname}!</h1>
             <p>
                 <i>Your verification code is:</i>&nbsp;<b>${account.verificationCode}</b>
             </p>
@@ -20,6 +20,22 @@ const create = async (email, password, firstname, lastname, nickname) => {
         `
     )
     res = await db.set(key, account.save())
+    return account.exportable()
+}
+
+const resendVerifyEmail = async (email, sessionId) => {
+    let account = await load(email, sessionId)
+    if(account.error || !account) return account || {error: 'Account not found'}
+    res = await mail.sendMail(email, 
+        'Verify your email address',
+        `
+            <h1>Thank you for signing up for Essencials, ${account.nickname}!</h1>
+            <p>
+                <i>Your verification code is:</i>&nbsp;<b>${account.verificationCode}</b>
+            </p>
+            <p>Enter your code on <a href="https://www.essencials.page/?#home">www.essencials.page/#home</a>.</p>
+        `
+    )
     return account.exportable()
 }
 
@@ -39,6 +55,7 @@ const validate = async (email, sessionId) => {
     let account = new Account()
     account.load(res)
     if(!account.validate(email, sessionId)) return {error: 'Invalid session'}
+    console.log('validate payment session id', account.paymentSessionId)
     return account.exportable()
 }
 
@@ -71,11 +88,13 @@ const startFreeTrial = async (email, sessionId) => {
 
     if(account.freeTrial === false){
         account.freeTrial = true
-        account.subTime = 30
+        const date = new Date();
+        date.setDate(date.getDate() + 30);
+        account.subTime = date.toDateString()
         await account.savetodb()
         return account.exportable()
     }
     return {error: 'free trial has expired'}
 }
 
-module.exports = {create, log, validate, load, verifyEmail, startFreeTrial}
+module.exports = {create, log, validate, load, verifyEmail, resendVerifyEmail, startFreeTrial}

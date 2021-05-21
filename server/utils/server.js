@@ -18,7 +18,7 @@ const serve = port => {
 //post
 const post = (path, fn) => 
   app.post('/' + path, async (req, res) => {
-    let val = fn(req.body)
+    let val = fn(req.body, req)
     if(val.then)
       val = await val
     res.send(JSON.stringify(val || { error: true, msg: 'No Response.' }))
@@ -30,7 +30,7 @@ const get = (path, fn, type) =>
   app.get('/' + path, (req, res) => {
     if(type)
       res.type(type)
-    res.send(JSON.stringify(fn(req.query) || { error: true, msg: 'No Response.' }))
+    res.send(JSON.stringify(fn(req.query, req) || { error: true, msg: 'No Response.' }))
     res.end()
   })
 

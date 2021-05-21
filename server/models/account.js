@@ -1,3 +1,4 @@
+const guid = require('../utils/guid.js')
 const verifyCode = require('../utils/verifyCode.js')
 
 module.exports = class{
@@ -61,6 +62,8 @@ module.exports = class{
             verified: this.verified,
             freeTrial: this.freeTrial,
         }
+        if(this.paymentSessionId) obj.paymentSessionId = this.paymentSessionId
+        if(this.customer) obj.customer = this.customer
         return obj
     }
 
@@ -79,6 +82,8 @@ module.exports = class{
             freeTrial: this.freeTrial,
         }
         if(!this.verified) obj.verificationCode = this.verificationCode
+        if(this.paymentSessionId) obj.paymentSessionId = this.paymentSessionId
+        if(this.customer) obj.customer = this.customer
         return obj
     }
 
@@ -94,6 +99,8 @@ module.exports = class{
         this.verified = obj.verified
         this.freeTrial = obj.freeTrial
         if(obj.verificationCode && !this.verified) this.verificationCode = obj.verificationCode
+        if(obj.paymentSessionId) this.paymentSessionId = obj.paymentSessionId
+        if(obj.customer) this.customer = obj.customer
         if(obj.data) this.data = JSON.parse(obj.data)
         this.checkSessionTime(this.email, this)
         return this

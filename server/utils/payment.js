@@ -29,7 +29,6 @@ const request = async (account) => {
 
     return account.exportable()
   } catch (e) {
-    res.status(400)
     return {
       error: {
         message: e.message,
@@ -48,11 +47,15 @@ const checkPaymentSession = async (account) => {
             delete account.paymentSessionId
             account.savetodb()
             console.log('account customer id:', account.customer)
+
+            let customerTable = await db.get('customerTable')
+            if(!customerTable) customerTable = {}
+            customerTable[account.customer] = `user-${account.email}`
+            await db.set('customerTable', customerTable)
         }
 
         return account.exportable()
     } catch (e) {
-        res.status(400)
         return {
             error: {
                 message: e.message,
@@ -61,18 +64,49 @@ const checkPaymentSession = async (account) => {
     }
 }
 
-const review = (req) => {
+const checkSubscription = async (account) => {
+    try {
+        const subscriptions = await stripe.subscriptions.list({
+            customer: account.customer,
+            status: 'all',
+            expand: ['data.default_payment_method'],
+        });
+
+        // console.log('checkSubscription', subscriptions)
+        if(subscriptions.data.find(s => s.status === 'active')) {
+            account.active = true
+        } else {
+            account.account = false
+        }
+        account.savetodb()
+
+        return account.exportable()
+    } catch (e) {
+        return {
+            error: {
+                message: e.message,
+            }
+        }
+    }
+}
+
+const review = async (req) => {
     let
     data = req.body.data,
     eventType = req.body.type
 
-    if (eventType === "checkout.session.completed") {
+    console.log('Webhook:', eventType)
+    if (eventType === "invoice.payment_succeeded") {
         console.log(`🔔  Payment received!`)
+        let customerTable = await db.get('customerTable')
+        if(customerTable){
+            console.log(customerTable)
+        }
         console.log(data)        
         return {msg: 'Subscription confirmed'}
     }
 }
 
 module.exports = {
-    request, checkPaymentSession, review
+    request, checkPaymentSession, checkSubscription, review
 }

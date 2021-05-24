@@ -4,6 +4,7 @@ const db = new Database()
 db.list().then(val => console.log(val))
 
 // db.delete('user-brayanbyrdsong@gmail.com')
+// db.delete('user-brayanbyrdsong@icloud.com')
 
 /* SERVER */
 const server = require('./server/utils/server.js')

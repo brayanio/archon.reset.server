@@ -88,8 +88,8 @@ const startFreeTrial = async (email, sessionId) => {
 
     if(account.freeTrial === false){
         account.freeTrial = true
-        const date = new Date();
-        date.setDate(date.getDate() + 30);
+        const date = new Date()
+        date.setDate(date.getDate() + 7)
         account.subTime = date.toDateString()
         await account.savetodb()
         return account.exportable()

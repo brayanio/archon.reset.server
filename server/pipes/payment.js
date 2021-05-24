@@ -17,4 +17,10 @@ const checkPaymentSession =  async (email, sessionId) => {
     return await payment.checkPaymentSession(account)
 }
 
-module.exports = {request, review, checkPaymentSession}
+const checkSubscription =  async (email, sessionId) => {
+    const account = await auth.load(email, sessionId)
+    if(!account || account.error) return account || {error: 'Account not found.'}
+    return await payment.checkSubscription(account)
+}
+
+module.exports = {request, review, checkPaymentSession, checkSubscription}

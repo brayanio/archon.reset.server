@@ -12,7 +12,7 @@ module.exports = server.post('data', async body => {
       console.log('load', email)
       return await dataPipe.load(email, sessionId)
   }
-  if(key && data){
+  if(key){
       console.log('save', key, email)
       return await dataPipe.save(email, sessionId, key, data)
   }

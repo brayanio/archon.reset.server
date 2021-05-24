@@ -1,4 +1,5 @@
 const guid = require('../utils/guid.js')
+const Database = require("@replit/database")
 const verifyCode = require('../utils/verifyCode.js')
 
 module.exports = class{
@@ -23,13 +24,12 @@ module.exports = class{
         if(new Date() > compare){
             this.sessionId = guid()
             this.sessionTime = new Date().toDateString()
+            const db = new Database()
             db.set(`user-${this.email}`, this.save())
         }
     }
 
     async log(email, password){
-        const guid = require('../utils/guid.js')
-        const Database = require("@replit/database")
         const db = new Database()
         if(email != this.email) return {error: 'Credentials do not match'}
         if(password != this.password) return {error: 'Credentials do not match'}
@@ -64,6 +64,7 @@ module.exports = class{
         }
         if(this.paymentSessionId) obj.paymentSessionId = this.paymentSessionId
         if(this.customer) obj.customer = this.customer
+        if(this.active) obj.active = this.active
         return obj
     }
 
@@ -84,6 +85,7 @@ module.exports = class{
         if(!this.verified) obj.verificationCode = this.verificationCode
         if(this.paymentSessionId) obj.paymentSessionId = this.paymentSessionId
         if(this.customer) obj.customer = this.customer
+        if(this.active) obj.active = this.active
         return obj
     }
 
@@ -101,13 +103,13 @@ module.exports = class{
         if(obj.verificationCode && !this.verified) this.verificationCode = obj.verificationCode
         if(obj.paymentSessionId) this.paymentSessionId = obj.paymentSessionId
         if(obj.customer) this.customer = obj.customer
+        if(obj.active) this.active = obj.active
         if(obj.data) this.data = JSON.parse(obj.data)
         this.checkSessionTime(this.email, this)
         return this
     }
 
     async savetodb(){
-        const Database = require("@replit/database")
         const db = new Database()
         await db.set(`user-${this.email}`, this.save())
     }

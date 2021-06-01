@@ -154,11 +154,20 @@ const broadcast = (name, ...props) => {
 }
 const emptybroadcast = name => broadcasts[name] = []
 
+// env
+let envData = {}
+const env = (key, val) => {
+    if(val !== undefined) env[key] = val
+    return env[key]
+}
+const deleteEnv = key => delete env[key]
+
 // i0
 export default {
     obj, load, element, nugget,
     router,
     fetch: onFetch, target: str => target = str,
     broadcast, onbroadcast, emptybroadcast,
-    form, guid
+    form, guid,
+    env, deleteEnv
 }

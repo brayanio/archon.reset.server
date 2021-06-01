@@ -4,7 +4,7 @@ const salt = require('../utils/salt.js')
 
 module.exports = server.post('signin', body => {
   const email = body.email.toLowerCase()
-  const password = salt(body.password)
+  const password = body.password ? salt(body.password) : null
   const signup = body.signup
   const signin = body.signin
   const sessionId = body.sessionId

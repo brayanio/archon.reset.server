@@ -86,6 +86,7 @@ module.exports = class{
         if(this.paymentSessionId) obj.paymentSessionId = this.paymentSessionId
         if(this.customer) obj.customer = this.customer
         if(this.active) obj.active = this.active
+        if(this.recover) obj.recover = this.recover
         return obj
     }
 
@@ -104,6 +105,7 @@ module.exports = class{
         if(obj.paymentSessionId) this.paymentSessionId = obj.paymentSessionId
         if(obj.customer) this.customer = obj.customer
         if(obj.active) this.active = obj.active
+        if(obj.recover) this.recover = obj.recover
         if(obj.data) this.data = JSON.parse(obj.data)
         this.checkSessionTime(this.email, this)
         return this

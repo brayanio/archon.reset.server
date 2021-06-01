@@ -4,7 +4,7 @@ const authPipe = require('../pipes/auth.js')
 module.exports = server.post('verify', async body => {
     const email = body.email.toLowerCase()
     const sessionId = body.sessionId
-    const code = body.code
+    const code = body.code ? body.code.toLowerCase() : null
     const resend = body.resend
     console.log('email verified', email)
     if(resend)

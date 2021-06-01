@@ -2,6 +2,7 @@ const Database = require("@replit/database")
 const db = new Database()
 const Account = require("../models/account.js")
 const mail = require('../utils/mail.js')
+const verifyCode = require('../utils/verifyCode.js')
 
 const create = async (email, password, firstname, lastname, nickname) => {
     const key = `user-${email}`
@@ -97,4 +98,48 @@ const startFreeTrial = async (email, sessionId) => {
     return {error: 'free trial has expired'}
 }
 
-module.exports = {create, log, validate, load, verifyEmail, resendVerifyEmail, startFreeTrial}
+const recoverPassword = async (email) => {
+    const key = `user-${email}`
+    let res = await db.get(key)
+    if(!res) return {error: 'Account not found'}
+    let account = new Account()
+    account.load(res)
+    account.recover = verifyCode()
+    account.savetodb()
+    await mail.sendMail(email, 
+        'Change password',
+        `
+            <h1>A request has been filled to change your password, ${account.nickname}.</h1>
+            <p>
+                <i>Your recover code is:</i>&nbsp;<b>${account.recover}</b>
+            </p>
+            <p>Enter your code on <a href="https://www.essencials.page/#recoverpassword">www.essencials.page/#recoverpassword</a>.</p>
+            <p>If you did not request this, then just ignore this email to keep the same password.</p>
+        `
+    )
+    return {msg: 'Account recover code created'}
+}
+
+const verifyRecoverPassword = async (email, password, code) => {
+    const key = `user-${email}`
+    let res = await db.get(key)
+    if(!res) return {error: 'Account not found'}
+    let account = new Account()
+    account.load(res)
+    if(account.recover !== code) return {error: 'Incorrect recover code'}
+    delete account.recover
+    account.password = password
+    account.savetodb()
+    return {msg: 'Account password successfully changed'}
+}
+
+const changeNickname = async (email, sessionId, name) => {
+    let account = await load(email, sessionId)
+    if(account.error) return account
+
+    account.nickname = name
+    account.savetodb()
+    return {msg: 'gucci'}
+}
+
+module.exports = {create, log, validate, load, verifyEmail, resendVerifyEmail, startFreeTrial, recoverPassword, verifyRecoverPassword, changeNickname}
